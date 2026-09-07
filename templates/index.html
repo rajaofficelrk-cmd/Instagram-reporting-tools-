@@ -1,273 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Raja Legend</title>
+  <style>
+    /* ---------- RESET & BASE ---------- */
+    * { margin:0; padding:0; box-sizing:border-box; }
 
-    <title>Raja Legend</title>
+    body {
+      background: #0a0a0a;
+      color: #00ffc8;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: #111;
+      border: 2px solid #00ffc8;
+      border-radius: 12px;
+      padding: 24px 20px;
+      box-shadow: 0 0 30px rgba(0,255,200,0.15);
+    }
 
-        body {
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at top, #171717 0%, #050505 45%, #000 100%);
-            color: #fff;
-            font-family: Arial, Helvetica, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+    /* ---------- HEADER ---------- */
+    .header {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      word-break: break-word;
+      color: #00ffc8;
+      text-shadow: 0 0 10px #00ffc866;
+      border-bottom: 1px solid #00ffc844;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      animation: glitch 3s infinite;
+    }
+    @keyframes glitch {
+      0% { text-shadow: 2px 0 #ff00c8, -2px 0 #00ffff; }
+      25% { text-shadow: -2px 0 #ff00c8, 2px 0 #00ffff; }
+      50% { text-shadow: 2px 2px #ff00c8, -2px -2px #00ffff; }
+      75% { text-shadow: -2px -2px #ff00c8, 2px 2px #00ffff; }
+      100% { text-shadow: 0 0 #ff00c8, 0 0 #00ffff; }
+    }
 
-        .container {
-            width: 100%;
-            max-width: 520px;
-        }
+    /* ---------- FORM ELEMENTS ---------- */
+    .field { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #00ffc8aa;
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      background: #1a1a1a;
+      border: 1px solid #00ffc866;
+      border-radius: 8px;
+      color: #00ffc8;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #00ffc8;
+      box-shadow: 0 0 12px #00ffc844;
+      background: #000;
+    }
+    input::placeholder { color: #00ffc866; }
 
-        .header {
-            border: 1px solid #292929;
-            background: rgba(10, 10, 10, 0.95);
-            border-radius: 18px 18px 0 0;
-            padding: 22px 15px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255,255,255,0.04);
-        }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .row .field { flex: 1; min-width: 120px; }
 
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            line-height: 1.6;
-            word-break: break-word;
-        }
+    /* ---------- BUTTONS ---------- */
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 20px 0 16px;
+    }
+    .btn {
+      flex: 1;
+      padding: 14px 10px;
+      border: 2px solid #00ffc8;
+      border-radius: 8px;
+      background: transparent;
+      color: #00ffc8;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: 0.25s;
+      min-width: 100px;
+    }
+    .btn:hover {
+      background: #00ffc822;
+      box-shadow: 0 0 20px #00ffc844;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-start { background: #00ffc822; border-color: #00ffc8; }
+    .btn-start:hover { background: #00ffc844; }
+    .btn-stop { border-color: #ff4466; color: #ff4466; }
+    .btn-stop:hover { background: #ff446622; box-shadow: 0 0 20px #ff446644; }
+    .btn-manual { border-color: #ffaa00; color: #ffaa00; background: #ffaa0022; }
+    .btn-manual:hover { background: #ffaa0044; box-shadow: 0 0 20px #ffaa0044; }
+    .btn:disabled { opacity: 0.4; pointer-events: none; filter: grayscale(0.5); }
 
-        .status {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #aaa;
-            letter-spacing: 2px;
-        }
+    /* ---------- STATUS & COUNTERS ---------- */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: #0d0d0d;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #00ffc844;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .badge {
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      background: #00ffc822;
+      border: 1px solid #00ffc8;
+    }
+    .badge.stopped {
+      background: #ff446622;
+      border-color: #ff4466;
+      color: #ff4466;
+    }
+    .counter { font-size: 1.2rem; font-weight: bold; color: #00ffc8; }
 
-        .status span {
-            color: #00ff88;
-        }
+    /* ---------- TIMER ---------- */
+    .timer-section {
+      display: flex;
+      gap: 20px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin: 10px 0 6px;
+    }
+    .timer-section .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #00ffc8aa;
+    }
+    .timer-section .value {
+      font-size: 1.6rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #00ffc8;
+      text-shadow: 0 0 20px #00ffc866;
+    }
 
-        .panel {
-            background: #0b0b0b;
-            border: 1px solid #292929;
-            border-top: none;
-            padding: 25px;
-            border-radius: 0 0 18px 18px;
-        }
+    /* ---------- LOG ---------- */
+    .log-container {
+      margin-top: 20px;
+      border-top: 1px solid #00ffc844;
+      padding-top: 16px;
+    }
+    .log-container .log-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #00ffc8aa;
+      margin-bottom: 8px;
+    }
+    .log-box {
+      background: #0a0a0a;
+      border: 1px solid #00ffc833;
+      border-radius: 8px;
+      padding: 10px 14px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #00ffc8bb;
+    }
+    .log-box .log-entry { padding: 2px 0; border-bottom: 1px solid #00ffc811; }
+    .log-box .log-entry .time { color: #00ffc866; margin-right: 10px; }
 
-        .title {
-            font-size: 25px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+    /* scrollbar */
+    .log-box::-webkit-scrollbar { width: 5px; }
+    .log-box::-webkit-scrollbar-track { background: #1a1a1a; }
+    .log-box::-webkit-scrollbar-thumb { background: #00ffc866; border-radius: 10px; }
 
-        .description {
-            color: #8f8f8f;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #ccc;
-            font-size: 13px;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 18px;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 10px;
-            color: #fff;
-            outline: none;
-            font-size: 15px;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: #777;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            background: #fff;
-            color: #000;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-            opacity: 0.9;
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 16px;
-            background: #111;
-            border: 1px solid #292929;
-            border-radius: 10px;
-        }
-
-        .result-title {
-            color: #00ff88;
-            font-size: 13px;
-            margin-bottom: 10px;
-        }
-
-        .target {
-            color: #fff;
-            margin-bottom: 14px;
-            word-break: break-all;
-        }
-
-        .open-btn {
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            background: #222;
-            border: 1px solid #444;
-            color: #fff;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .open-btn:hover {
-            background: #2d2d2d;
-        }
-
-        .notice {
-            margin-top: 20px;
-            color: #777;
-            font-size: 11px;
-            line-height: 1.6;
-            text-align: center;
-        }
-
-        .footer {
-            text-align: center;
-            color: #444;
-            font-size: 11px;
-            margin-top: 15px;
-        }
-    </style>
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 480px) {
+      .container { padding: 16px 12px; }
+      .header { font-size: 0.9rem; }
+      .btn { font-size: 0.8rem; padding: 12px 6px; min-width: 70px; }
+      .row { flex-direction: column; }
+      .row .field { min-width: unset; }
+      .timer-section .value { font-size: 1.3rem; }
+    }
+  </style>
 </head>
-
 <body>
-
 <div class="container">
 
-    <div class="header">
-        <div class="logo">
-            ◄⸻̅͟ˣ͠𓆩𝐑꯭꘍꯭֟፝͡᪂꘍꯭ 𝐋꯭𖾝ԍ𖾝꯭֟፝͡᎔꯭𑀘𓆪꯭ˣ͢
-        </div>
+  <!-- HEADER (exact text) -->
+  <div class="header">
+    ◄⸻̅͟ˣ͠𓆩𝐑꯭꘍꯭֟፝͡᪂꘍꯭ 𝐋꯭𖾝ԍ𖾝꯭֟፝͡᎔꯭𑀘𓆪꯭ˣ͢
+  </div>
 
-        <div class="status">
-            SYSTEM <span>● ONLINE</span>
-        </div>
+  <!-- INPUTS -->
+  <div class="field">
+    <label for="username">Instagram Username</label>
+    <input type="text" id="username" placeholder="e.g. target_user" value="demo_user">
+  </div>
+
+  <div class="field">
+    <label for="reason">Report Reason</label>
+    <select id="reason">
+      <option value="Spam">Spam</option>
+      <option value="Inappropriate Content">Inappropriate Content</option>
+      <option value="Harassment">Harassment</option>
+      <option value="Impersonation">Impersonation</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
+
+  <!-- INTERVAL & TIMER -->
+  <div class="row">
+    <div class="field">
+      <label for="interval">Interval (seconds)</label>
+      <input type="number" id="interval" value="10" min="3" step="1">
     </div>
-
-    <div class="panel">
-
-        <div class="title">Instagram Report</div>
-
-        <div class="description">
-            Enter an Instagram username and open its profile to use
-            Instagram's official reporting options.
-        </div>
-
-        <form method="POST">
-
-            <label for="username">
-                Instagram Username
-            </label>
-
-            <input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="@username"
-                value="{{ username }}"
-                autocomplete="off"
-                required
-            >
-
-            <label for="reason">
-                Report Reason
-            </label>
-
-            <select id="reason" name="reason">
-                <option value="">Select reason</option>
-                <option value="spam">Spam</option>
-                <option value="inappropriate">Inappropriate content</option>
-                <option value="impersonation">Impersonation</option>
-                <option value="other">Something else</option>
-            </select>
-
-            <button type="submit">
-                OPEN INSTAGRAM
-            </button>
-
-        </form>
-
-        {% if profile_url %}
-
-        <div class="result">
-
-            <div class="result-title">
-                ● TARGET READY
-            </div>
-
-            <div class="target">
-                @{{ username }}
-            </div>
-
-            <a
-                class="open-btn"
-                href="{{ profile_url }}"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                OPEN PROFILE →
-            </a>
-
-        </div>
-
-        {% endif %}
-
-        <div class="notice">
-            Reporting is handled through Instagram's official interface.
-            This page does not automatically submit or mass-send reports.
-        </div>
-
+    <div class="field">
+      <label>Next report in</label>
+      <div class="timer-section" style="margin:0;">
+        <span class="value" id="countdown">--</span>
+        <span class="label">sec</span>
+      </div>
     </div>
+  </div>
 
-    <div class="footer">
-        RAJA LEGEND • WEB PANEL
+  <!-- BUTTONS -->
+  <div class="btn-group">
+    <button class="btn btn-start" id="startBtn">▶ START</button>
+    <button class="btn btn-stop" id="stopBtn" disabled>⏹ STOP</button>
+    <button class="btn btn-manual" id="manualBtn">🔗 REPORT MANUALLY</button>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <span>Status: <span id="statusBadge" class="badge stopped">STOPPED</span></span>
+    <span>Reports sent: <span class="counter" id="reportCounter">0</span></span>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-container">
+    <div class="log-title">📋 Activity Log</div>
+    <div class="log-box" id="logBox">
+      <div class="log-entry"><span class="time">[init]</span> Ready – enter a username and press START.</div>
     </div>
+  </div>
 
 </div>
 
+<script>
+(function() {
+  'use strict';
+
+  // DOM refs
+  const usernameInput = document.getElementById('username');
+  const reasonSelect = document.getElementById('reason');
+  const intervalInput = document.getElementById('interval');
+  const countdownSpan = document.getElementById('countdown');
+  const statusBadge = document.getElementById('statusBadge');
+  const reportCounterSpan = document.getElementById('reportCounter');
+  const logBox = document.getElementById('logBox');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const manualBtn = document.getElementById('manualBtn');
+
+  let running = false;
+
+  // ---------- Fetch state from server ----------
+  function fetchState() {
+    fetch('/state')
+      .then(res => res.json())
+      .then(data => {
+        running = data.running;
+        // Update UI
+        updateStatus(data.running);
+        countdownSpan.textContent = data.running ? data.countdown : '--';
+        reportCounterSpan.textContent = data.counter;
+        // Update logs
+        renderLogs(data.logs);
+        // Enable/disable buttons
+        startBtn.disabled = data.running;
+        stopBtn.disabled = !data.running;
+        // Update interval input if not running
+        if (!data.running) {
+          intervalInput.value = data.interval;
+        }
+      })
+      .catch(err => console.error('State fetch error:', err));
+  }
+
+  function renderLogs(logs) {
+    // Keep logBox content, but we can replace entirely
+    logBox.innerHTML = '';
+    if (logs.length === 0) {
+      logBox.innerHTML = '<div class="log-entry"><span class="time">[init]</span> No activity yet.</div>';
+      return;
+    }
+    logs.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.innerHTML = `<span class="time">[${entry.time}]</span> ${entry.msg}`;
+      logBox.appendChild(div);
+    });
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  function updateStatus(isRunning) {
+    if (isRunning) {
+      statusBadge.textContent = 'RUNNING';
+      statusBadge.className = 'badge';
+    } else {
+      statusBadge.textContent = 'STOPPED';
+      statusBadge.className = 'badge stopped';
+    }
+  }
+
+  // ---------- START action ----------
+  function startCycle() {
+    const username = usernameInput.value.trim() || 'unknown';
+    const interval = parseInt(intervalInput.value, 10) || 10;
+    // Send POST to /start
+    fetch('/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, interval })
+    })
+      .then(res => res.json())
+      .then(() => {
+        // Immediately fetch state
+        fetchState();
+      })
+      .catch(err => console.error('Start error:', err));
+  }
+
+  // ---------- STOP action ----------
+  function stopCycle() {
+    fetch('/stop', { method: 'POST' })
+      .then(res => res.json())
+      .then(() => fetchState())
+      .catch(err => console.error('Stop error:', err));
+  }
+
+  // ---------- MANUAL report ----------
+  function openManual() {
+    const username = usernameInput.value.trim();
+    if (!username) {
+      alert('Please enter a username first.');
+      return;
+    }
+    window.open(`https://www.instagram.com/${username}/`, '_blank');
+  }
+
+  // ---------- Poll state every second ----------
+  let pollInterval = setInterval(fetchState, 1000);
+
+  // ---------- Event listeners ----------
+  startBtn.addEventListener('click', startCycle);
+  stopBtn.addEventListener('click', stopCycle);
+  manualBtn.addEventListener('click', openManual);
+
+  // Load initial state
+  fetchState();
+
+  // When interval input changes, we can update server if not running
+  intervalInput.addEventListener('change', function() {
+    if (!running) {
+      const interval = parseInt(this.value, 10);
+      if (!isNaN(interval) && interval >= 1) {
+        fetch('/set_interval', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ interval })
+        }).then(() => fetchState());
+      }
+    }
+  });
+
+})();
+</script>
 </body>
 </html>
