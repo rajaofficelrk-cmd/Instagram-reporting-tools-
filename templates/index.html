@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Raja Legend</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top, #171717 0%, #050505 45%, #000 100%);
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .header {
+            border: 1px solid #292929;
+            background: rgba(10, 10, 10, 0.95);
+            border-radius: 18px 18px 0 0;
+            padding: 22px 15px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255,255,255,0.04);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #aaa;
+            letter-spacing: 2px;
+        }
+
+        .status span {
+            color: #00ff88;
+        }
+
+        .panel {
+            background: #0b0b0b;
+            border: 1px solid #292929;
+            border-top: none;
+            padding: 25px;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .title {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            color: #8f8f8f;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-size: 13px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 18px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            outline: none;
+            font-size: 15px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #777;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #fff;
+            color: #000;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            background: #111;
+            border: 1px solid #292929;
+            border-radius: 10px;
+        }
+
+        .result-title {
+            color: #00ff88;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .target {
+            color: #fff;
+            margin-bottom: 14px;
+            word-break: break-all;
+        }
+
+        .open-btn {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .open-btn:hover {
+            background: #2d2d2d;
+        }
+
+        .notice {
+            margin-top: 20px;
+            color: #777;
+            font-size: 11px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            color: #444;
+            font-size: 11px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="logo">
+            ◄⸻̅͟ˣ͠𓆩𝐑꯭꘍꯭֟፝͡᪂꘍꯭ 𝐋꯭𖾝ԍ𖾝꯭֟፝͡᎔꯭𑀘𓆪꯭ˣ͢
+        </div>
+
+        <div class="status">
+            SYSTEM <span>● ONLINE</span>
+        </div>
+    </div>
+
+    <div class="panel">
+
+        <div class="title">Instagram Report</div>
+
+        <div class="description">
+            Enter an Instagram username and open its profile to use
+            Instagram's official reporting options.
+        </div>
+
+        <form method="POST">
+
+            <label for="username">
+                Instagram Username
+            </label>
+
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="@username"
+                value="{{ username }}"
+                autocomplete="off"
+                required
+            >
+
+            <label for="reason">
+                Report Reason
+            </label>
+
+            <select id="reason" name="reason">
+                <option value="">Select reason</option>
+                <option value="spam">Spam</option>
+                <option value="inappropriate">Inappropriate content</option>
+                <option value="impersonation">Impersonation</option>
+                <option value="other">Something else</option>
+            </select>
+
+            <button type="submit">
+                OPEN INSTAGRAM
+            </button>
+
+        </form>
+
+        {% if profile_url %}
+
+        <div class="result">
+
+            <div class="result-title">
+                ● TARGET READY
+            </div>
+
+            <div class="target">
+                @{{ username }}
+            </div>
+
+            <a
+                class="open-btn"
+                href="{{ profile_url }}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                OPEN PROFILE →
+            </a>
+
+        </div>
+
+        {% endif %}
+
+        <div class="notice">
+            Reporting is handled through Instagram's official interface.
+            This page does not automatically submit or mass-send reports.
+        </div>
+
+    </div>
+
+    <div class="footer">
+        RAJA LEGEND • WEB PANEL
+    </div>
+
+</div>
+
+</body>
+</html>
