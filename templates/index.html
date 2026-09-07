@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Raja Legend</title>
+  <title>Raja Legend – Moderation</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -17,7 +17,7 @@
       align-items: center;
     }
     .container {
-      max-width: 600px;
+      max-width: 700px;
       width: 100%;
       background: #111;
       border: 2px solid #00ffc8;
@@ -45,6 +45,57 @@
       50% { text-shadow: 2px 2px #ff00c8, -2px -2px #00ffff; }
       75% { text-shadow: -2px -2px #ff00c8, 2px 2px #00ffff; }
       100% { text-shadow: 0 0 #ff00c8, 0 0 #00ffff; }
+    }
+
+    .auth-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #0d0d0d;
+      border: 1px solid #00ffc844;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+    }
+    .auth-section .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .auth-section .status .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff4466;
+    }
+    .auth-section .status .dot.connected {
+      background: #00ffc8;
+      box-shadow: 0 0 15px #00ffc8;
+    }
+    .auth-section .btn-small {
+      padding: 6px 16px;
+      border: 1px solid #00ffc8;
+      border-radius: 20px;
+      background: transparent;
+      color: #00ffc8;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      transition: 0.2s;
+    }
+    .auth-section .btn-small:hover {
+      background: #00ffc822;
+    }
+    .auth-section .btn-small.logout {
+      border-color: #ff4466;
+      color: #ff4466;
+    }
+    .auth-section .btn-small.logout:hover {
+      background: #ff446622;
     }
 
     .field { margin-bottom: 18px; }
@@ -79,7 +130,7 @@
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      margin: 20px 0 16px;
+      margin: 16px 0;
     }
     .btn {
       flex: 1;
@@ -108,8 +159,6 @@
     .btn-stop:hover { background: #ff446622; box-shadow: 0 0 20px #ff446644; }
     .btn-manual { border-color: #ffaa00; color: #ffaa00; background: #ffaa0022; }
     .btn-manual:hover { background: #ffaa0044; box-shadow: 0 0 20px #ffaa0044; }
-    .btn-clear { border-color: #ff66aa; color: #ff66aa; background: #ff66aa22; }
-    .btn-clear:hover { background: #ff66aa44; }
     .btn:disabled { opacity: 0.4; pointer-events: none; filter: grayscale(0.5); }
 
     .monitor-grid {
@@ -160,101 +209,89 @@
     .status-text.running { color: #00ffc8; }
     .status-text.stopped { color: #ff4466; }
 
-    .target-status-dot {
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .media-item {
+      background: #1a1a1a;
+      border: 1px solid #00ffc844;
+      border-radius: 8px;
+      padding: 6px;
+      text-align: center;
+      font-size: 0.7rem;
+      transition: 0.2s;
+    }
+    .media-item img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #000;
+    }
+    .media-item .caption {
+      color: #00ffc8aa;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 4px;
+    }
+    .media-item .report-link {
       display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-      vertical-align: middle;
-      background: #555;
-      transition: 0.3s;
+      margin-top: 4px;
+      padding: 2px 8px;
+      border: 1px solid #ffaa00;
+      border-radius: 12px;
+      color: #ffaa00;
+      font-size: 0.6rem;
+      text-decoration: none;
+      text-transform: uppercase;
     }
-    .target-status-dot.ready {
-      background: #00ffc8;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0% { opacity: 0.4; transform: scale(0.8); }
-      50% { opacity: 1; transform: scale(1.2); }
-      100% { opacity: 0.4; transform: scale(0.8); }
+    .media-item .report-link:hover {
+      background: #ffaa0022;
     }
 
-    /* ---------- HISTORY SECTION ---------- */
-    .history-section {
-      margin-top: 24px;
+    .log-container {
+      margin-top: 20px;
       border-top: 1px solid #00ffc844;
       padding-top: 16px;
     }
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .history-header .title {
-      font-size: 0.9rem;
+    .log-container .log-title {
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 2px;
       color: #00ffc8aa;
+      margin-bottom: 8px;
     }
-    .history-header .total {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #00ffc8;
-    }
-    .history-box {
+    .log-box {
       background: #0a0a0a;
       border: 1px solid #00ffc833;
       border-radius: 8px;
-      padding: 8px 12px;
-      max-height: 200px;
+      padding: 10px 14px;
+      max-height: 150px;
       overflow-y: auto;
       font-size: 0.85rem;
       line-height: 1.5;
       color: #00ffc8bb;
     }
-    .history-box .entry {
-      padding: 3px 0;
-      border-bottom: 1px solid #00ffc811;
-      font-family: 'Courier New', monospace;
-    }
-    .history-box .entry .time {
-      color: #00ffc866;
-      margin-right: 12px;
-    }
-    .history-box .entry .cycle {
-      color: #00ffc8;
-      margin-right: 12px;
-    }
-    .history-box .entry .user {
-      color: #ffaa00;
-    }
-    .history-box::-webkit-scrollbar { width: 5px; }
-    .history-box::-webkit-scrollbar-track { background: #1a1a1a; }
-    .history-box::-webkit-scrollbar-thumb { background: #00ffc866; border-radius: 10px; }
+    .log-box .log-entry { padding: 2px 0; border-bottom: 1px solid #00ffc811; }
+    .log-box .log-entry .time { color: #00ffc866; margin-right: 10px; }
 
-    .history-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .history-actions .btn {
-      flex: 0 1 auto;
-      padding: 8px 16px;
-      font-size: 0.8rem;
-      min-width: auto;
-    }
+    .log-box::-webkit-scrollbar { width: 5px; }
+    .log-box::-webkit-scrollbar-track { background: #1a1a1a; }
+    .log-box::-webkit-scrollbar-thumb { background: #00ffc866; border-radius: 10px; }
 
     @media (max-width: 480px) {
       .container { padding: 16px 12px; }
       .header { font-size: 0.9rem; }
       .btn { font-size: 0.8rem; padding: 12px 6px; min-width: 70px; }
       .monitor-grid { grid-template-columns: 1fr; }
-      .history-header .total { font-size: 1rem; }
+      .media-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
     }
   </style>
 </head>
@@ -266,43 +303,37 @@
     ◄⸻̅͟ˣ͠𓆩𝐑꯭꘍꯭֟፝͡᪂꘍꯭ 𝐋꯭𖾝ԍ𖾝꯭֟፝͡᎔꯭𑀘𓆪꯭ˣ͢
   </div>
 
-  <!-- TARGET INPUT -->
-  <div class="field">
-    <label for="username">Target Instagram Username</label>
-    <input type="text" id="username" placeholder="e.g. @rk979633" value="">
+  <!-- AUTH SECTION -->
+  <div class="auth-section">
+    <div class="status">
+      <span class="dot" id="authDot"></span>
+      <span id="authStatus">Not connected</span>
+    </div>
+    <div>
+      <button class="btn-small" id="loginBtn">🔑 Connect</button>
+      <button class="btn-small logout" id="logoutBtn" style="display:none;">Logout</button>
+    </div>
   </div>
 
   <!-- CONTROLS -->
   <div class="field">
-    <label for="interval">Interval (seconds)</label>
-    <input type="number" id="interval" value="10" min="1" step="1">
+    <label for="interval">Polling Interval (seconds)</label>
+    <input type="number" id="interval" value="10" min="2" step="1">
   </div>
 
   <div class="btn-group">
     <button class="btn btn-start" id="startBtn">▶ START</button>
     <button class="btn btn-stop" id="stopBtn" disabled>⏹ STOP</button>
-    <button class="btn btn-manual" id="manualBtn">🔗 OPEN INSTAGRAM</button>
   </div>
 
   <!-- LIVE MONITOR -->
-  <div class="monitor-grid" id="monitor">
+  <div class="monitor-grid">
     <div class="status-indicator">
       <span class="status-dot" id="statusDot"></span>
       <span class="status-text stopped" id="statusText">STOPPED</span>
     </div>
     <div class="item">
-      <span class="label">TARGET STATUS</span>
-      <span class="value" id="targetStatusDisplay">
-        <span class="target-status-dot" id="targetDot"></span>
-        <span id="targetStatusText">○ TARGET NOT SET</span>
-      </span>
-    </div>
-    <div class="item">
-      <span class="label">TARGET</span>
-      <span class="value" id="targetDisplay">—</span>
-    </div>
-    <div class="item">
-      <span class="label">Next cycle</span>
+      <span class="label">Next fetch</span>
       <span class="value" id="countdownDisplay">--</span>
     </div>
     <div class="item">
@@ -319,17 +350,19 @@
     </div>
   </div>
 
-  <!-- HISTORY SECTION -->
-  <div class="history-section">
-    <div class="history-header">
-      <span class="title">📋 ACTIVITY HISTORY</span>
-      <span class="total">TOTAL: <span id="totalCycles">0</span></span>
+  <!-- MEDIA GALLERY -->
+  <div style="margin-top:12px;">
+    <label style="font-size:0.8rem; text-transform:uppercase; color:#00ffc8aa;">Recent Media</label>
+    <div class="media-grid" id="mediaGrid">
+      <div style="grid-column:1/-1; text-align:center; color:#00ffc866;">No media loaded – start polling or connect account.</div>
     </div>
-    <div class="history-box" id="historyBox">
-      <div class="entry"><span class="time">[init]</span> No cycles yet.</div>
-    </div>
-    <div class="history-actions">
-      <button class="btn btn-clear" id="clearHistoryBtn">🗑 CLEAR HISTORY</button>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-container">
+    <div class="log-title">📋 Activity Log</div>
+    <div class="log-box" id="logBox">
+      <div class="log-entry"><span class="time">[init]</span> Ready.</div>
     </div>
   </div>
 
@@ -340,16 +373,13 @@
   'use strict';
 
   // DOM refs
-  const usernameInput = document.getElementById('username');
+  const authDot = document.getElementById('authDot');
+  const authStatus = document.getElementById('authStatus');
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
   const intervalInput = document.getElementById('interval');
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
-  const manualBtn = document.getElementById('manualBtn');
-  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-
-  const targetDot = document.getElementById('targetDot');
-  const targetStatusText = document.getElementById('targetStatusText');
-  const targetDisplay = document.getElementById('targetDisplay');
 
   const statusDot = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
@@ -357,51 +387,33 @@
   const elapsedDisplay = document.getElementById('elapsedDisplay');
   const cyclesDisplay = document.getElementById('cyclesDisplay');
   const intervalDisplay = document.getElementById('intervalDisplay');
-  const totalCyclesSpan = document.getElementById('totalCycles');
-  const historyBox = document.getElementById('historyBox');
+  const mediaGrid = document.getElementById('mediaGrid');
+  const logBox = document.getElementById('logBox');
 
   let running = false;
-  let currentCleanedTarget = '';
-
-  // ---------- Update target status live ----------
-  function updateTargetStatus() {
-    const raw = usernameInput.value;
-    let cleaned = raw.trim().replace(/^@+/, '');
-    const valid = /^[a-zA-Z0-9_.]+$/.test(cleaned);
-
-    let statusMsg, dotClass, displayName;
-
-    if (cleaned === '') {
-      statusMsg = '○ TARGET NOT SET';
-      dotClass = '';
-      displayName = '—';
-      currentCleanedTarget = '';
-    } else if (!valid) {
-      statusMsg = '⚠ INVALID USERNAME';
-      dotClass = '';
-      displayName = '@' + cleaned;
-      currentCleanedTarget = '';
-    } else {
-      statusMsg = '● TARGET READY';
-      dotClass = 'ready';
-      displayName = '@' + cleaned;
-      currentCleanedTarget = cleaned;
-    }
-
-    targetDot.className = 'target-status-dot ' + dotClass;
-    targetStatusText.textContent = statusMsg;
-    targetDisplay.textContent = displayName;
-  }
-
-  usernameInput.addEventListener('input', updateTargetStatus);
+  let authenticated = false;
 
   // ---------- Fetch state ----------
   function fetchState() {
     fetch('/state')
       .then(res => res.json())
       .then(data => {
+        // Auth
+        authenticated = data.authenticated;
+        if (authenticated && data.user && data.user.username) {
+          authDot.className = 'dot connected';
+          authStatus.textContent = `@${data.user.username}`;
+          loginBtn.style.display = 'none';
+          logoutBtn.style.display = 'inline-block';
+        } else {
+          authDot.className = 'dot';
+          authStatus.textContent = 'Not connected';
+          loginBtn.style.display = 'inline-block';
+          logoutBtn.style.display = 'none';
+        }
+
+        // Running
         running = data.running;
-        // Status
         if (running) {
           statusDot.className = 'status-dot running';
           statusText.textContent = '● RUNNING';
@@ -420,94 +432,93 @@
         elapsedDisplay.textContent = data.elapsed || '00:00:00';
         cyclesDisplay.textContent = data.cycles || 0;
         intervalDisplay.textContent = (data.interval || 10) + 's';
-        totalCyclesSpan.textContent = data.cycles || 0;
 
-        // Render history
-        renderHistory(data.history || []);
+        // Media
+        renderMedia(data.media || []);
+
+        // Logs
+        renderLogs(data.logs || []);
       })
       .catch(err => console.error('State fetch error:', err));
   }
 
-  function renderHistory(history) {
-    historyBox.innerHTML = '';
-    if (!history || history.length === 0) {
-      historyBox.innerHTML = '<div class="entry"><span class="time">[init]</span> No cycles yet.</div>';
+  function renderMedia(media) {
+    mediaGrid.innerHTML = '';
+    if (!media || media.length === 0) {
+      mediaGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#00ffc866;">No media – start polling.</div>';
       return;
     }
-    history.forEach(entry => {
+    media.forEach(item => {
       const div = document.createElement('div');
-      div.className = 'entry';
+      div.className = 'media-item';
+      const imgSrc = item.media_url || '';
+      const caption = item.caption || 'No caption';
+      const permalink = item.permalink || '#';
       div.innerHTML = `
-        <span class="time">${entry.time}</span>
-        <span class="cycle">Cycle #${entry.cycle}</span>
-        <span class="user">@${entry.username}</span>
+        <img src="${imgSrc}" alt="Media" onerror="this.style.display='none'">
+        <div class="caption">${caption.substring(0,20)}${caption.length>20?'…':''}</div>
+        <a href="${permalink}" target="_blank" class="report-link">View on Instagram</a>
       `;
-      historyBox.appendChild(div);
+      mediaGrid.appendChild(div);
     });
   }
 
-  // ---------- START ----------
-  function startCycle() {
-    const target = currentCleanedTarget;
-    if (!target) {
-      alert('Please enter a valid Instagram username (letters, numbers, underscore, period).');
+  function renderLogs(logs) {
+    logBox.innerHTML = '';
+    if (!logs || logs.length === 0) {
+      logBox.innerHTML = '<div class="log-entry"><span class="time">[init]</span> No activity.</div>';
       return;
     }
+    logs.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.innerHTML = `<span class="time">[${entry.time}]</span> ${entry.msg}`;
+      logBox.appendChild(div);
+    });
+  }
+
+  // ---------- Actions ----------
+  function startPolling() {
     const interval = parseInt(intervalInput.value, 10);
     if (isNaN(interval) || interval < 1) {
       alert('Interval must be at least 1 second.');
       return;
     }
-
     fetch('/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target, interval })
+      body: JSON.stringify({ interval })
     })
       .then(res => res.json())
       .then(() => fetchState())
       .catch(err => console.error('Start error:', err));
   }
 
-  // ---------- STOP ----------
-  function stopCycle() {
+  function stopPolling() {
     fetch('/stop', { method: 'POST' })
       .then(res => res.json())
       .then(() => fetchState())
       .catch(err => console.error('Stop error:', err));
   }
 
-  // ---------- OPEN INSTAGRAM ----------
-  function openInstagram() {
-    const target = currentCleanedTarget;
-    if (!target) {
-      alert('Please enter a valid username first.');
-      return;
-    }
-    window.open(`https://www.instagram.com/${target}/`, '_blank');
+  function login() {
+    window.location.href = '/login';
   }
 
-  // ---------- CLEAR HISTORY ----------
-  function clearHistory() {
-    if (confirm('Clear all history entries?')) {
-      fetch('/clear_history', { method: 'POST' })
-        .then(res => res.json())
-        .then(() => fetchState())
-        .catch(err => console.error('Clear history error:', err));
-    }
+  function logout() {
+    window.location.href = '/logout';
   }
 
   // ---------- Polling ----------
   setInterval(fetchState, 1000);
 
   // ---------- Event listeners ----------
-  startBtn.addEventListener('click', startCycle);
-  stopBtn.addEventListener('click', stopCycle);
-  manualBtn.addEventListener('click', openInstagram);
-  clearHistoryBtn.addEventListener('click', clearHistory);
+  startBtn.addEventListener('click', startPolling);
+  stopBtn.addEventListener('click', stopPolling);
+  loginBtn.addEventListener('click', login);
+  logoutBtn.addEventListener('click', logout);
 
   // Initial load
-  updateTargetStatus();
   fetchState();
 })();
 </script>
