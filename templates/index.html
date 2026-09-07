@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Raja Legend</title>
   <style>
-    /* ---------- RESET & BASE ---------- */
     * { margin:0; padding:0; box-sizing:border-box; }
-
     body {
       background: #0a0a0a;
       color: #00ffc8;
@@ -18,7 +16,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .container {
       max-width: 600px;
       width: 100%;
@@ -28,8 +25,6 @@
       padding: 24px 20px;
       box-shadow: 0 0 30px rgba(0,255,200,0.15);
     }
-
-    /* ---------- HEADER ---------- */
     .header {
       text-align: center;
       font-size: 1.1rem;
@@ -52,7 +47,6 @@
       100% { text-shadow: 0 0 #ff00c8, 0 0 #00ffff; }
     }
 
-    /* ---------- FORM ELEMENTS ---------- */
     .field { margin-bottom: 18px; }
     label {
       display: block;
@@ -81,7 +75,6 @@
     }
     input::placeholder { color: #00ffc866; }
 
-    /* ---------- BUTTONS ---------- */
     .btn-group {
       display: flex;
       gap: 12px;
@@ -115,9 +108,10 @@
     .btn-stop:hover { background: #ff446622; box-shadow: 0 0 20px #ff446644; }
     .btn-manual { border-color: #ffaa00; color: #ffaa00; background: #ffaa0022; }
     .btn-manual:hover { background: #ffaa0044; box-shadow: 0 0 20px #ffaa0044; }
+    .btn-clear { border-color: #ff66aa; color: #ff66aa; background: #ff66aa22; }
+    .btn-clear:hover { background: #ff66aa44; }
     .btn:disabled { opacity: 0.4; pointer-events: none; filter: grayscale(0.5); }
 
-    /* ---------- LIVE MONITOR ---------- */
     .monitor-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -166,7 +160,6 @@
     .status-text.running { color: #00ffc8; }
     .status-text.stopped { color: #ff4466; }
 
-    /* ---------- TARGET STATUS PULSE ---------- */
     .target-status-dot {
       display: inline-block;
       width: 10px;
@@ -187,43 +180,81 @@
       100% { opacity: 0.4; transform: scale(0.8); }
     }
 
-    /* ---------- LOG ---------- */
-    .log-container {
-      margin-top: 20px;
+    /* ---------- HISTORY SECTION ---------- */
+    .history-section {
+      margin-top: 24px;
       border-top: 1px solid #00ffc844;
       padding-top: 16px;
     }
-    .log-container .log-title {
-      font-size: 0.8rem;
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .history-header .title {
+      font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 2px;
       color: #00ffc8aa;
-      margin-bottom: 8px;
     }
-    .log-box {
+    .history-header .total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #00ffc8;
+    }
+    .history-box {
       background: #0a0a0a;
       border: 1px solid #00ffc833;
       border-radius: 8px;
-      padding: 10px 14px;
-      max-height: 180px;
+      padding: 8px 12px;
+      max-height: 200px;
       overflow-y: auto;
       font-size: 0.85rem;
       line-height: 1.5;
       color: #00ffc8bb;
     }
-    .log-box .log-entry { padding: 2px 0; border-bottom: 1px solid #00ffc811; }
-    .log-box .log-entry .time { color: #00ffc866; margin-right: 10px; }
+    .history-box .entry {
+      padding: 3px 0;
+      border-bottom: 1px solid #00ffc811;
+      font-family: 'Courier New', monospace;
+    }
+    .history-box .entry .time {
+      color: #00ffc866;
+      margin-right: 12px;
+    }
+    .history-box .entry .cycle {
+      color: #00ffc8;
+      margin-right: 12px;
+    }
+    .history-box .entry .user {
+      color: #ffaa00;
+    }
+    .history-box::-webkit-scrollbar { width: 5px; }
+    .history-box::-webkit-scrollbar-track { background: #1a1a1a; }
+    .history-box::-webkit-scrollbar-thumb { background: #00ffc866; border-radius: 10px; }
 
-    .log-box::-webkit-scrollbar { width: 5px; }
-    .log-box::-webkit-scrollbar-track { background: #1a1a1a; }
-    .log-box::-webkit-scrollbar-thumb { background: #00ffc866; border-radius: 10px; }
+    .history-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .history-actions .btn {
+      flex: 0 1 auto;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      min-width: auto;
+    }
 
-    /* ---------- RESPONSIVE ---------- */
     @media (max-width: 480px) {
       .container { padding: 16px 12px; }
       .header { font-size: 0.9rem; }
       .btn { font-size: 0.8rem; padding: 12px 6px; min-width: 70px; }
       .monitor-grid { grid-template-columns: 1fr; }
+      .history-header .total { font-size: 1rem; }
     }
   </style>
 </head>
@@ -235,7 +266,7 @@
     ◄⸻̅͟ˣ͠𓆩𝐑꯭꘍꯭֟፝͡᪂꘍꯭ 𝐋꯭𖾝ԍ𖾝꯭֟፝͡᎔꯭𑀘𓆪꯭ˣ͢
   </div>
 
-  <!-- INPUTS -->
+  <!-- TARGET INPUT -->
   <div class="field">
     <label for="username">Target Instagram Username</label>
     <input type="text" id="username" placeholder="e.g. @rk979633" value="">
@@ -288,11 +319,17 @@
     </div>
   </div>
 
-  <!-- ACTIVITY LOG -->
-  <div class="log-container">
-    <div class="log-title">📋 Activity Log</div>
-    <div class="log-box" id="logBox">
-      <div class="log-entry"><span class="time">[init]</span> Enter a username and press START.</div>
+  <!-- HISTORY SECTION -->
+  <div class="history-section">
+    <div class="history-header">
+      <span class="title">📋 ACTIVITY HISTORY</span>
+      <span class="total">TOTAL: <span id="totalCycles">0</span></span>
+    </div>
+    <div class="history-box" id="historyBox">
+      <div class="entry"><span class="time">[init]</span> No cycles yet.</div>
+    </div>
+    <div class="history-actions">
+      <button class="btn btn-clear" id="clearHistoryBtn">🗑 CLEAR HISTORY</button>
     </div>
   </div>
 
@@ -308,6 +345,7 @@
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
   const manualBtn = document.getElementById('manualBtn');
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
   const targetDot = document.getElementById('targetDot');
   const targetStatusText = document.getElementById('targetStatusText');
@@ -319,17 +357,16 @@
   const elapsedDisplay = document.getElementById('elapsedDisplay');
   const cyclesDisplay = document.getElementById('cyclesDisplay');
   const intervalDisplay = document.getElementById('intervalDisplay');
-  const logBox = document.getElementById('logBox');
+  const totalCyclesSpan = document.getElementById('totalCycles');
+  const historyBox = document.getElementById('historyBox');
 
   let running = false;
-  let currentCleanedTarget = ''; // store cleaned username without @
+  let currentCleanedTarget = '';
 
   // ---------- Update target status live ----------
   function updateTargetStatus() {
     const raw = usernameInput.value;
-    // Trim and strip leading '@' characters
     let cleaned = raw.trim().replace(/^@+/, '');
-    // Validate: allow letters, numbers, underscore, period
     const valid = /^[a-zA-Z0-9_.]+$/.test(cleaned);
 
     let statusMsg, dotClass, displayName;
@@ -342,8 +379,8 @@
     } else if (!valid) {
       statusMsg = '⚠ INVALID USERNAME';
       dotClass = '';
-      displayName = '@' + cleaned; // show what they typed (may contain invalid chars)
-      currentCleanedTarget = ''; // not valid, so don't use
+      displayName = '@' + cleaned;
+      currentCleanedTarget = '';
     } else {
       statusMsg = '● TARGET READY';
       dotClass = 'ready';
@@ -356,16 +393,15 @@
     targetDisplay.textContent = displayName;
   }
 
-  // ---------- Event listener for input ----------
   usernameInput.addEventListener('input', updateTargetStatus);
 
-  // ---------- Fetch state from server ----------
+  // ---------- Fetch state ----------
   function fetchState() {
     fetch('/state')
       .then(res => res.json())
       .then(data => {
-        // Update UI except for target status (already live)
         running = data.running;
+        // Status
         if (running) {
           statusDot.className = 'status-dot running';
           statusText.textContent = '● RUNNING';
@@ -384,30 +420,34 @@
         elapsedDisplay.textContent = data.elapsed || '00:00:00';
         cyclesDisplay.textContent = data.cycles || 0;
         intervalDisplay.textContent = (data.interval || 10) + 's';
+        totalCyclesSpan.textContent = data.cycles || 0;
 
-        renderLogs(data.logs);
+        // Render history
+        renderHistory(data.history || []);
       })
       .catch(err => console.error('State fetch error:', err));
   }
 
-  function renderLogs(logs) {
-    logBox.innerHTML = '';
-    if (!logs || logs.length === 0) {
-      logBox.innerHTML = '<div class="log-entry"><span class="time">[init]</span> No activity yet.</div>';
+  function renderHistory(history) {
+    historyBox.innerHTML = '';
+    if (!history || history.length === 0) {
+      historyBox.innerHTML = '<div class="entry"><span class="time">[init]</span> No cycles yet.</div>';
       return;
     }
-    logs.forEach(entry => {
+    history.forEach(entry => {
       const div = document.createElement('div');
-      div.className = 'log-entry';
-      div.innerHTML = `<span class="time">[${entry.time}]</span> ${entry.msg}`;
-      logBox.appendChild(div);
+      div.className = 'entry';
+      div.innerHTML = `
+        <span class="time">${entry.time}</span>
+        <span class="cycle">Cycle #${entry.cycle}</span>
+        <span class="user">@${entry.username}</span>
+      `;
+      historyBox.appendChild(div);
     });
-    logBox.scrollTop = logBox.scrollHeight;
   }
 
   // ---------- START ----------
   function startCycle() {
-    // Get the cleaned target from currentCleanedTarget
     const target = currentCleanedTarget;
     if (!target) {
       alert('Please enter a valid Instagram username (letters, numbers, underscore, period).');
@@ -447,6 +487,16 @@
     window.open(`https://www.instagram.com/${target}/`, '_blank');
   }
 
+  // ---------- CLEAR HISTORY ----------
+  function clearHistory() {
+    if (confirm('Clear all history entries?')) {
+      fetch('/clear_history', { method: 'POST' })
+        .then(res => res.json())
+        .then(() => fetchState())
+        .catch(err => console.error('Clear history error:', err));
+    }
+  }
+
   // ---------- Polling ----------
   setInterval(fetchState, 1000);
 
@@ -454,8 +504,9 @@
   startBtn.addEventListener('click', startCycle);
   stopBtn.addEventListener('click', stopCycle);
   manualBtn.addEventListener('click', openInstagram);
+  clearHistoryBtn.addEventListener('click', clearHistory);
 
-  // Initial update for target (if any default)
+  // Initial load
   updateTargetStatus();
   fetchState();
 })();
