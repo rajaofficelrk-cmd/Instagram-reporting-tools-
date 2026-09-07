@@ -8,26 +8,24 @@ app = Flask(__name__)
 # ---------- Thread-safe state ----------
 state = {
     'running': False,
-    'target': '',               # Instagram username
-    'interval': 10,             # seconds between cycles
+    'target': '',
+    'interval': 10,
     'countdown': 10,
-    'elapsed': 0,               # total seconds since start
+    'elapsed': 0,
     'cycles': 0,
-    'logs': []                  # list of {'time': str, 'msg': str}
+    'logs': []
 }
 state_lock = threading.Lock()
 
 def add_log(msg):
-    """Append a log entry with current time."""
     now = datetime.now().strftime('%H:%M:%S')
     with state_lock:
         state['logs'].append({'time': now, 'msg': msg})
-        if len(state['logs']) > 100:   # keep last 100
+        if len(state['logs']) > 100:
             state['logs'].pop(0)
 
-# ---------- Background timer thread ----------
+# ---------- Background timer ----------
 def background_ticker():
-    """Runs every second and updates countdown/cycles when running."""
     while True:
         time.sleep(1)
         with state_lock:
@@ -35,14 +33,12 @@ def background_ticker():
                 state['elapsed'] += 1
                 state['countdown'] -= 1
                 if state['countdown'] <= 0:
-                    # Simulate a reporting cycle
                     state['cycles'] += 1
                     cycle_num = state['cycles']
                     target = state['target'] if state['target'] else 'unknown'
                     add_log(f"Cycle #{cycle_num} for @{target} (simulated)")
                     state['countdown'] = state['interval']
 
-# Start the daemon thread (exits when app exits)
 thread = threading.Thread(target=background_ticker, daemon=True)
 thread.start()
 
@@ -53,15 +49,12 @@ def index():
 
 @app.route('/state', methods=['GET'])
 def get_state():
-    """Return current state as JSON."""
     with state_lock:
-        # format elapsed as HH:MM:SS
         elapsed_seconds = state['elapsed']
         hours = elapsed_seconds // 3600
         minutes = (elapsed_seconds % 3600) // 60
         seconds = elapsed_seconds % 60
         elapsed_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-
         return jsonify({
             'running': state['running'],
             'target': state['target'],
@@ -69,20 +62,17 @@ def get_state():
             'countdown': state['countdown'],
             'elapsed': elapsed_str,
             'cycles': state['cycles'],
-            'logs': state['logs'][-50:]   # last 50 entries
+            'logs': state['logs'][-50:]
         })
 
 @app.route('/start', methods=['POST'])
 def start():
-    """Start the simulation."""
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Invalid request'}), 400
-
     target = data.get('target', '').strip()
     if not target:
         return jsonify({'error': 'Username is required'}), 400
-
     interval = data.get('interval', 10)
     try:
         interval = int(interval)
@@ -90,7 +80,6 @@ def start():
             interval = 1
     except:
         interval = 10
-
     with state_lock:
         if not state['running']:
             state['running'] = True
@@ -100,17 +89,14 @@ def start():
             state['elapsed'] = 0
             state['cycles'] = 0
             add_log(f"▶ Started for @{target} (interval: {interval}s)")
-
     return jsonify({'status': 'started'})
 
 @app.route('/stop', methods=['POST'])
 def stop():
-    """Stop the simulation."""
     with state_lock:
         if state['running']:
             state['running'] = False
             add_log("⏹ Stopped")
-
     return jsonify({'status': 'stopped'})
 
 if __name__ == '__main__':
