@@ -81,43 +81,6 @@
     }
     input::placeholder { color: #00ffc866; }
 
-    /* ---------- TARGET STATUS ---------- */
-    .target-status {
-      background: #0d0d0d;
-      border: 1px solid #00ffc844;
-      border-radius: 8px;
-      padding: 10px 16px;
-      margin-bottom: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-size: 0.9rem;
-    }
-    .target-status .label { color: #00ffc8aa; }
-    .target-status .value { font-weight: bold; color: #00ffc8; }
-    .target-status .ready {
-      color: #00ffc8;
-      border: 1px solid #00ffc8;
-      padding: 2px 12px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      background: #00ffc822;
-    }
-    .target-status .not-ready {
-      color: #ff4466;
-      border: 1px solid #ff4466;
-      padding: 2px 12px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      background: #ff446622;
-    }
-
     /* ---------- BUTTONS ---------- */
     .btn-group {
       display: flex;
@@ -203,6 +166,27 @@
     .status-text.running { color: #00ffc8; }
     .status-text.stopped { color: #ff4466; }
 
+    /* ---------- TARGET STATUS PULSE ---------- */
+    .target-status-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+      background: #555;
+      transition: 0.3s;
+    }
+    .target-status-dot.ready {
+      background: #00ffc8;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; transform: scale(0.8); }
+    }
+
     /* ---------- LOG ---------- */
     .log-container {
       margin-top: 20px;
@@ -230,7 +214,6 @@
     .log-box .log-entry { padding: 2px 0; border-bottom: 1px solid #00ffc811; }
     .log-box .log-entry .time { color: #00ffc866; margin-right: 10px; }
 
-    /* scrollbar */
     .log-box::-webkit-scrollbar { width: 5px; }
     .log-box::-webkit-scrollbar-track { background: #1a1a1a; }
     .log-box::-webkit-scrollbar-thumb { background: #00ffc866; border-radius: 10px; }
@@ -247,7 +230,7 @@
 <body>
 <div class="container">
 
-  <!-- HEADER (exact text) -->
+  <!-- HEADER -->
   <div class="header">
     ◄⸻̅͟ˣ͠𓆩𝐑꯭꘍꯭֟፝͡᪂꘍꯭ 𝐋꯭𖾝ԍ𖾝꯭֟፝͡᎔꯭𑀘𓆪꯭ˣ͢
   </div>
@@ -255,14 +238,7 @@
   <!-- INPUTS -->
   <div class="field">
     <label for="username">Target Instagram Username</label>
-    <input type="text" id="username" placeholder="e.g. target_user" value="">
-  </div>
-
-  <!-- TARGET STATUS -->
-  <div class="target-status" id="targetStatus">
-    <span class="label">Target:</span>
-    <span class="value" id="targetDisplay">—</span>
-    <span id="targetReadyBadge" class="not-ready">NOT READY</span>
+    <input type="text" id="username" placeholder="e.g. @rk979633" value="">
   </div>
 
   <!-- CONTROLS -->
@@ -282,6 +258,17 @@
     <div class="status-indicator">
       <span class="status-dot" id="statusDot"></span>
       <span class="status-text stopped" id="statusText">STOPPED</span>
+    </div>
+    <div class="item">
+      <span class="label">TARGET STATUS</span>
+      <span class="value" id="targetStatusDisplay">
+        <span class="target-status-dot" id="targetDot"></span>
+        <span id="targetStatusText">○ TARGET NOT SET</span>
+      </span>
+    </div>
+    <div class="item">
+      <span class="label">TARGET</span>
+      <span class="value" id="targetDisplay">—</span>
     </div>
     <div class="item">
       <span class="label">Next cycle</span>
@@ -321,8 +308,11 @@
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
   const manualBtn = document.getElementById('manualBtn');
+
+  const targetDot = document.getElementById('targetDot');
+  const targetStatusText = document.getElementById('targetStatusText');
   const targetDisplay = document.getElementById('targetDisplay');
-  const targetReadyBadge = document.getElementById('targetReadyBadge');
+
   const statusDot = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
   const countdownDisplay = document.getElementById('countdownDisplay');
@@ -332,44 +322,72 @@
   const logBox = document.getElementById('logBox');
 
   let running = false;
+  let currentCleanedTarget = ''; // store cleaned username without @
 
-  // ---------- Update UI from state ----------
-  function updateUI(state) {
-    // Target
-    const target = state.target || '';
-    targetDisplay.textContent = target || '—';
-    if (target) {
-      targetReadyBadge.textContent = '✅ TARGET READY';
-      targetReadyBadge.className = 'ready';
+  // ---------- Update target status live ----------
+  function updateTargetStatus() {
+    const raw = usernameInput.value;
+    // Trim and strip leading '@' characters
+    let cleaned = raw.trim().replace(/^@+/, '');
+    // Validate: allow letters, numbers, underscore, period
+    const valid = /^[a-zA-Z0-9_.]+$/.test(cleaned);
+
+    let statusMsg, dotClass, displayName;
+
+    if (cleaned === '') {
+      statusMsg = '○ TARGET NOT SET';
+      dotClass = '';
+      displayName = '—';
+      currentCleanedTarget = '';
+    } else if (!valid) {
+      statusMsg = '⚠ INVALID USERNAME';
+      dotClass = '';
+      displayName = '@' + cleaned; // show what they typed (may contain invalid chars)
+      currentCleanedTarget = ''; // not valid, so don't use
     } else {
-      targetReadyBadge.textContent = '❌ NOT READY';
-      targetReadyBadge.className = 'not-ready';
+      statusMsg = '● TARGET READY';
+      dotClass = 'ready';
+      displayName = '@' + cleaned;
+      currentCleanedTarget = cleaned;
     }
 
-    // Running status
-    running = state.running;
-    if (running) {
-      statusDot.className = 'status-dot running';
-      statusText.textContent = '● RUNNING';
-      statusText.className = 'status-text running';
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-    } else {
-      statusDot.className = 'status-dot';
-      statusText.textContent = 'STOPPED';
-      statusText.className = 'status-text stopped';
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
-    }
+    targetDot.className = 'target-status-dot ' + dotClass;
+    targetStatusText.textContent = statusMsg;
+    targetDisplay.textContent = displayName;
+  }
 
-    // Monitor values
-    countdownDisplay.textContent = running ? state.countdown : '--';
-    elapsedDisplay.textContent = state.elapsed || '00:00:00';
-    cyclesDisplay.textContent = state.cycles || 0;
-    intervalDisplay.textContent = (state.interval || 10) + 's';
+  // ---------- Event listener for input ----------
+  usernameInput.addEventListener('input', updateTargetStatus);
 
-    // Logs
-    renderLogs(state.logs);
+  // ---------- Fetch state from server ----------
+  function fetchState() {
+    fetch('/state')
+      .then(res => res.json())
+      .then(data => {
+        // Update UI except for target status (already live)
+        running = data.running;
+        if (running) {
+          statusDot.className = 'status-dot running';
+          statusText.textContent = '● RUNNING';
+          statusText.className = 'status-text running';
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+        } else {
+          statusDot.className = 'status-dot';
+          statusText.textContent = 'STOPPED';
+          statusText.className = 'status-text stopped';
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+        }
+
+        countdownDisplay.textContent = running ? data.countdown : '--';
+        elapsedDisplay.textContent = data.elapsed || '00:00:00';
+        cyclesDisplay.textContent = data.cycles || 0;
+        intervalDisplay.textContent = (data.interval || 10) + 's';
+
+        renderLogs(data.logs);
+      })
+      .catch(err => console.error('State fetch error:', err));
   }
 
   function renderLogs(logs) {
@@ -387,19 +405,12 @@
     logBox.scrollTop = logBox.scrollHeight;
   }
 
-  // ---------- Fetch state from server ----------
-  function fetchState() {
-    fetch('/state')
-      .then(res => res.json())
-      .then(data => updateUI(data))
-      .catch(err => console.error('State fetch error:', err));
-  }
-
   // ---------- START ----------
   function startCycle() {
-    const target = usernameInput.value.trim();
+    // Get the cleaned target from currentCleanedTarget
+    const target = currentCleanedTarget;
     if (!target) {
-      alert('Please enter a target username.');
+      alert('Please enter a valid Instagram username (letters, numbers, underscore, period).');
       return;
     }
     const interval = parseInt(intervalInput.value, 10);
@@ -428,37 +439,24 @@
 
   // ---------- OPEN INSTAGRAM ----------
   function openInstagram() {
-    const target = usernameInput.value.trim();
+    const target = currentCleanedTarget;
     if (!target) {
-      alert('Please enter a username first.');
+      alert('Please enter a valid username first.');
       return;
     }
     window.open(`https://www.instagram.com/${target}/`, '_blank');
   }
 
   // ---------- Polling ----------
-  let pollInterval = setInterval(fetchState, 1000);
+  setInterval(fetchState, 1000);
 
   // ---------- Event listeners ----------
   startBtn.addEventListener('click', startCycle);
   stopBtn.addEventListener('click', stopCycle);
   manualBtn.addEventListener('click', openInstagram);
 
-  // Also update when username changes (show target ready)
-  usernameInput.addEventListener('input', function() {
-    const val = this.value.trim();
-    if (val) {
-      targetDisplay.textContent = val;
-      targetReadyBadge.textContent = '✅ TARGET READY';
-      targetReadyBadge.className = 'ready';
-    } else {
-      targetDisplay.textContent = '—';
-      targetReadyBadge.textContent = '❌ NOT READY';
-      targetReadyBadge.className = 'not-ready';
-    }
-  });
-
-  // Initial fetch
+  // Initial update for target (if any default)
+  updateTargetStatus();
   fetchState();
 })();
 </script>
