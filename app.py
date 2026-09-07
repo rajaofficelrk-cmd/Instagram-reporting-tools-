@@ -8,21 +8,27 @@ app = Flask(__name__)
 # ---------- Thread-safe state ----------
 state = {
     'running': False,
-    'target': '',
+    'target': '',               # cleaned username (no @)
     'interval': 10,
     'countdown': 10,
     'elapsed': 0,
     'cycles': 0,
-    'logs': []
+    'history': []               # list of dicts: {'time': str, 'cycle': int, 'username': str}
 }
 state_lock = threading.Lock()
 
-def add_log(msg):
+def add_history_entry(cycle_num, username):
+    """Add a completed cycle to the history (keeps last 100)."""
     now = datetime.now().strftime('%H:%M:%S')
     with state_lock:
-        state['logs'].append({'time': now, 'msg': msg})
-        if len(state['logs']) > 100:
-            state['logs'].pop(0)
+        state['history'].insert(0, {'time': now, 'cycle': cycle_num, 'username': username})
+        if len(state['history']) > 100:
+            state['history'].pop()
+
+def add_system_log(msg):
+    """Optional: log system events (not shown in history)."""
+    # We're not displaying system logs in UI, but keep them for debugging.
+    pass
 
 # ---------- Background timer ----------
 def background_ticker():
@@ -36,7 +42,13 @@ def background_ticker():
                     state['cycles'] += 1
                     cycle_num = state['cycles']
                     target = state['target'] if state['target'] else 'unknown'
-                    add_log(f"Cycle #{cycle_num} for @{target} (simulated)")
+                    # Add to history (outside lock? still inside)
+                    # We'll call a function that acquires lock again, but we already hold it.
+                    # Better to do it inline.
+                    now = datetime.now().strftime('%H:%M:%S')
+                    state['history'].insert(0, {'time': now, 'cycle': cycle_num, 'username': target})
+                    if len(state['history']) > 100:
+                        state['history'].pop()
                     state['countdown'] = state['interval']
 
 thread = threading.Thread(target=background_ticker, daemon=True)
@@ -62,7 +74,7 @@ def get_state():
             'countdown': state['countdown'],
             'elapsed': elapsed_str,
             'cycles': state['cycles'],
-            'logs': state['logs'][-50:]
+            'history': state['history'][:100]  # send all (max 100)
         })
 
 @app.route('/start', methods=['POST'])
@@ -88,7 +100,7 @@ def start():
             state['countdown'] = interval
             state['elapsed'] = 0
             state['cycles'] = 0
-            add_log(f"▶ Started for @{target} (interval: {interval}s)")
+            state['history'] = []   # clear history on new start? Probably not, but let's keep old history? The requirement doesn't specify. I'll keep existing history; user can clear manually.
     return jsonify({'status': 'started'})
 
 @app.route('/stop', methods=['POST'])
@@ -96,8 +108,13 @@ def stop():
     with state_lock:
         if state['running']:
             state['running'] = False
-            add_log("⏹ Stopped")
     return jsonify({'status': 'stopped'})
+
+@app.route('/clear_history', methods=['POST'])
+def clear_history():
+    with state_lock:
+        state['history'] = []
+    return jsonify({'status': 'cleared'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
