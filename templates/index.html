@@ -81,12 +81,42 @@
     }
     input::placeholder { color: #00ffc866; }
 
-    .row {
+    /* ---------- TARGET STATUS ---------- */
+    .target-status {
+      background: #0d0d0d;
+      border: 1px solid #00ffc844;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
       display: flex;
-      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.9rem;
     }
-    .row .field { flex: 1; min-width: 120px; }
+    .target-status .label { color: #00ffc8aa; }
+    .target-status .value { font-weight: bold; color: #00ffc8; }
+    .target-status .ready {
+      color: #00ffc8;
+      border: 1px solid #00ffc8;
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: #00ffc822;
+    }
+    .target-status .not-ready {
+      color: #ff4466;
+      border: 1px solid #ff4466;
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: #ff446622;
+    }
 
     /* ---------- BUTTONS ---------- */
     .btn-group {
@@ -124,52 +154,54 @@
     .btn-manual:hover { background: #ffaa0044; box-shadow: 0 0 20px #ffaa0044; }
     .btn:disabled { opacity: 0.4; pointer-events: none; filter: grayscale(0.5); }
 
-    /* ---------- STATUS & COUNTERS ---------- */
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
+    /* ---------- LIVE MONITOR ---------- */
+    .monitor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
       background: #0d0d0d;
-      padding: 12px 16px;
-      border-radius: 8px;
       border: 1px solid #00ffc844;
-      margin-top: 10px;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
       font-size: 0.9rem;
     }
-    .badge {
-      padding: 2px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-      background: #00ffc822;
-      border: 1px solid #00ffc8;
-    }
-    .badge.stopped {
-      background: #ff446622;
-      border-color: #ff4466;
-      color: #ff4466;
-    }
-    .counter { font-size: 1.2rem; font-weight: bold; color: #00ffc8; }
-
-    /* ---------- TIMER ---------- */
-    .timer-section {
+    .monitor-grid .item {
       display: flex;
-      gap: 20px;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin: 10px 0 6px;
+      justify-content: space-between;
+      padding: 4px 0;
     }
-    .timer-section .label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: #00ffc8aa;
+    .monitor-grid .item .label { color: #00ffc8aa; }
+    .monitor-grid .item .value { font-weight: bold; color: #00ffc8; }
+    .monitor-grid .status-indicator {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #00ffc833;
+      margin-bottom: 4px;
     }
-    .timer-section .value {
-      font-size: 1.6rem;
+    .status-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff4466;
+      transition: 0.3s;
+    }
+    .status-dot.running {
+      background: #00ffc8;
+      box-shadow: 0 0 20px #00ffc8;
+    }
+    .status-text {
       font-weight: bold;
+      text-transform: uppercase;
       letter-spacing: 2px;
-      color: #00ffc8;
-      text-shadow: 0 0 20px #00ffc866;
+      font-size: 0.9rem;
     }
+    .status-text.running { color: #00ffc8; }
+    .status-text.stopped { color: #ff4466; }
 
     /* ---------- LOG ---------- */
     .log-container {
@@ -189,7 +221,7 @@
       border: 1px solid #00ffc833;
       border-radius: 8px;
       padding: 10px 14px;
-      max-height: 200px;
+      max-height: 180px;
       overflow-y: auto;
       font-size: 0.85rem;
       line-height: 1.5;
@@ -208,9 +240,7 @@
       .container { padding: 16px 12px; }
       .header { font-size: 0.9rem; }
       .btn { font-size: 0.8rem; padding: 12px 6px; min-width: 70px; }
-      .row { flex-direction: column; }
-      .row .field { min-width: unset; }
-      .timer-section .value { font-size: 1.3rem; }
+      .monitor-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -224,54 +254,58 @@
 
   <!-- INPUTS -->
   <div class="field">
-    <label for="username">Instagram Username</label>
-    <input type="text" id="username" placeholder="e.g. target_user" value="demo_user">
+    <label for="username">Target Instagram Username</label>
+    <input type="text" id="username" placeholder="e.g. target_user" value="">
   </div>
 
+  <!-- TARGET STATUS -->
+  <div class="target-status" id="targetStatus">
+    <span class="label">Target:</span>
+    <span class="value" id="targetDisplay">—</span>
+    <span id="targetReadyBadge" class="not-ready">NOT READY</span>
+  </div>
+
+  <!-- CONTROLS -->
   <div class="field">
-    <label for="reason">Report Reason</label>
-    <select id="reason">
-      <option value="Spam">Spam</option>
-      <option value="Inappropriate Content">Inappropriate Content</option>
-      <option value="Harassment">Harassment</option>
-      <option value="Impersonation">Impersonation</option>
-      <option value="Other">Other</option>
-    </select>
+    <label for="interval">Interval (seconds)</label>
+    <input type="number" id="interval" value="10" min="1" step="1">
   </div>
 
-  <!-- INTERVAL & TIMER -->
-  <div class="row">
-    <div class="field">
-      <label for="interval">Interval (seconds)</label>
-      <input type="number" id="interval" value="10" min="3" step="1">
-    </div>
-    <div class="field">
-      <label>Next report in</label>
-      <div class="timer-section" style="margin:0;">
-        <span class="value" id="countdown">--</span>
-        <span class="label">sec</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- BUTTONS -->
   <div class="btn-group">
     <button class="btn btn-start" id="startBtn">▶ START</button>
     <button class="btn btn-stop" id="stopBtn" disabled>⏹ STOP</button>
-    <button class="btn btn-manual" id="manualBtn">🔗 REPORT MANUALLY</button>
+    <button class="btn btn-manual" id="manualBtn">🔗 OPEN INSTAGRAM</button>
   </div>
 
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <span>Status: <span id="statusBadge" class="badge stopped">STOPPED</span></span>
-    <span>Reports sent: <span class="counter" id="reportCounter">0</span></span>
+  <!-- LIVE MONITOR -->
+  <div class="monitor-grid" id="monitor">
+    <div class="status-indicator">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-text stopped" id="statusText">STOPPED</span>
+    </div>
+    <div class="item">
+      <span class="label">Next cycle</span>
+      <span class="value" id="countdownDisplay">--</span>
+    </div>
+    <div class="item">
+      <span class="label">Elapsed</span>
+      <span class="value" id="elapsedDisplay">00:00:00</span>
+    </div>
+    <div class="item">
+      <span class="label">Cycles</span>
+      <span class="value" id="cyclesDisplay">0</span>
+    </div>
+    <div class="item">
+      <span class="label">Interval</span>
+      <span class="value" id="intervalDisplay">10s</span>
+    </div>
   </div>
 
-  <!-- LOG -->
+  <!-- ACTIVITY LOG -->
   <div class="log-container">
     <div class="log-title">📋 Activity Log</div>
     <div class="log-box" id="logBox">
-      <div class="log-entry"><span class="time">[init]</span> Ready – enter a username and press START.</div>
+      <div class="log-entry"><span class="time">[init]</span> Enter a username and press START.</div>
     </div>
   </div>
 
@@ -283,45 +317,64 @@
 
   // DOM refs
   const usernameInput = document.getElementById('username');
-  const reasonSelect = document.getElementById('reason');
   const intervalInput = document.getElementById('interval');
-  const countdownSpan = document.getElementById('countdown');
-  const statusBadge = document.getElementById('statusBadge');
-  const reportCounterSpan = document.getElementById('reportCounter');
-  const logBox = document.getElementById('logBox');
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
   const manualBtn = document.getElementById('manualBtn');
+  const targetDisplay = document.getElementById('targetDisplay');
+  const targetReadyBadge = document.getElementById('targetReadyBadge');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const countdownDisplay = document.getElementById('countdownDisplay');
+  const elapsedDisplay = document.getElementById('elapsedDisplay');
+  const cyclesDisplay = document.getElementById('cyclesDisplay');
+  const intervalDisplay = document.getElementById('intervalDisplay');
+  const logBox = document.getElementById('logBox');
 
   let running = false;
 
-  // ---------- Fetch state from server ----------
-  function fetchState() {
-    fetch('/state')
-      .then(res => res.json())
-      .then(data => {
-        running = data.running;
-        // Update UI
-        updateStatus(data.running);
-        countdownSpan.textContent = data.running ? data.countdown : '--';
-        reportCounterSpan.textContent = data.counter;
-        // Update logs
-        renderLogs(data.logs);
-        // Enable/disable buttons
-        startBtn.disabled = data.running;
-        stopBtn.disabled = !data.running;
-        // Update interval input if not running
-        if (!data.running) {
-          intervalInput.value = data.interval;
-        }
-      })
-      .catch(err => console.error('State fetch error:', err));
+  // ---------- Update UI from state ----------
+  function updateUI(state) {
+    // Target
+    const target = state.target || '';
+    targetDisplay.textContent = target || '—';
+    if (target) {
+      targetReadyBadge.textContent = '✅ TARGET READY';
+      targetReadyBadge.className = 'ready';
+    } else {
+      targetReadyBadge.textContent = '❌ NOT READY';
+      targetReadyBadge.className = 'not-ready';
+    }
+
+    // Running status
+    running = state.running;
+    if (running) {
+      statusDot.className = 'status-dot running';
+      statusText.textContent = '● RUNNING';
+      statusText.className = 'status-text running';
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    } else {
+      statusDot.className = 'status-dot';
+      statusText.textContent = 'STOPPED';
+      statusText.className = 'status-text stopped';
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
+
+    // Monitor values
+    countdownDisplay.textContent = running ? state.countdown : '--';
+    elapsedDisplay.textContent = state.elapsed || '00:00:00';
+    cyclesDisplay.textContent = state.cycles || 0;
+    intervalDisplay.textContent = (state.interval || 10) + 's';
+
+    // Logs
+    renderLogs(state.logs);
   }
 
   function renderLogs(logs) {
-    // Keep logBox content, but we can replace entirely
     logBox.innerHTML = '';
-    if (logs.length === 0) {
+    if (!logs || logs.length === 0) {
       logBox.innerHTML = '<div class="log-entry"><span class="time">[init]</span> No activity yet.</div>';
       return;
     }
@@ -334,35 +387,38 @@
     logBox.scrollTop = logBox.scrollHeight;
   }
 
-  function updateStatus(isRunning) {
-    if (isRunning) {
-      statusBadge.textContent = 'RUNNING';
-      statusBadge.className = 'badge';
-    } else {
-      statusBadge.textContent = 'STOPPED';
-      statusBadge.className = 'badge stopped';
-    }
+  // ---------- Fetch state from server ----------
+  function fetchState() {
+    fetch('/state')
+      .then(res => res.json())
+      .then(data => updateUI(data))
+      .catch(err => console.error('State fetch error:', err));
   }
 
-  // ---------- START action ----------
+  // ---------- START ----------
   function startCycle() {
-    const username = usernameInput.value.trim() || 'unknown';
-    const interval = parseInt(intervalInput.value, 10) || 10;
-    // Send POST to /start
+    const target = usernameInput.value.trim();
+    if (!target) {
+      alert('Please enter a target username.');
+      return;
+    }
+    const interval = parseInt(intervalInput.value, 10);
+    if (isNaN(interval) || interval < 1) {
+      alert('Interval must be at least 1 second.');
+      return;
+    }
+
     fetch('/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, interval })
+      body: JSON.stringify({ target, interval })
     })
       .then(res => res.json())
-      .then(() => {
-        // Immediately fetch state
-        fetchState();
-      })
+      .then(() => fetchState())
       .catch(err => console.error('Start error:', err));
   }
 
-  // ---------- STOP action ----------
+  // ---------- STOP ----------
   function stopCycle() {
     fetch('/stop', { method: 'POST' })
       .then(res => res.json())
@@ -370,41 +426,40 @@
       .catch(err => console.error('Stop error:', err));
   }
 
-  // ---------- MANUAL report ----------
-  function openManual() {
-    const username = usernameInput.value.trim();
-    if (!username) {
+  // ---------- OPEN INSTAGRAM ----------
+  function openInstagram() {
+    const target = usernameInput.value.trim();
+    if (!target) {
       alert('Please enter a username first.');
       return;
     }
-    window.open(`https://www.instagram.com/${username}/`, '_blank');
+    window.open(`https://www.instagram.com/${target}/`, '_blank');
   }
 
-  // ---------- Poll state every second ----------
+  // ---------- Polling ----------
   let pollInterval = setInterval(fetchState, 1000);
 
   // ---------- Event listeners ----------
   startBtn.addEventListener('click', startCycle);
   stopBtn.addEventListener('click', stopCycle);
-  manualBtn.addEventListener('click', openManual);
+  manualBtn.addEventListener('click', openInstagram);
 
-  // Load initial state
-  fetchState();
-
-  // When interval input changes, we can update server if not running
-  intervalInput.addEventListener('change', function() {
-    if (!running) {
-      const interval = parseInt(this.value, 10);
-      if (!isNaN(interval) && interval >= 1) {
-        fetch('/set_interval', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ interval })
-        }).then(() => fetchState());
-      }
+  // Also update when username changes (show target ready)
+  usernameInput.addEventListener('input', function() {
+    const val = this.value.trim();
+    if (val) {
+      targetDisplay.textContent = val;
+      targetReadyBadge.textContent = '✅ TARGET READY';
+      targetReadyBadge.className = 'ready';
+    } else {
+      targetDisplay.textContent = '—';
+      targetReadyBadge.textContent = '❌ NOT READY';
+      targetReadyBadge.className = 'not-ready';
     }
   });
 
+  // Initial fetch
+  fetchState();
 })();
 </script>
 </body>
